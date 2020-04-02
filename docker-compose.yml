@@ -1,0 +1,36 @@
+version: '3'
+services:
+  web:
+    image: guoshi_waf:latest
+    container_name: guoshi_waf
+    tty: true
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ./logs:/opt/nginx/logs
+      - ./logs:/var/log
+      - ./nginx.conf:/opt/nginx/conf/nginx.conf
+      - ./acmeout/example.com:/opt/ssl/example.com
+    labels:
+      - sh.acme.autoload.domain=guoshi_waf_label
+
+  acme.sh:
+    image: neilpang/acme.sh
+    container_name: guoshi_acme
+    command:
+      - /bin/sh
+      - -c
+      - |
+        acme.sh --issue -d example.com -d '*.example.com'  --dns dns_ali
+        acme.sh --deploy -d example.com  --deploy-hook docker
+        /entry.sh daemon
+    volumes:
+      - ./acmeout:/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - Ali_Key=
+      - Ali_Secret=
+      - DEPLOY_DOCKER_CONTAINER_LABEL=sh.acme.autoload.domain=guoshi_waf_label
+      - DEPLOY_DOCKER_CONTAINER_RELOAD_CMD="/opt/start.sh"
