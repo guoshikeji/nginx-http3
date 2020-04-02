@@ -1,8 +1,8 @@
 version: '3'
 services:
   web:
-    image: guoshi_waf:latest
-    container_name: guoshi_waf
+    image: registry.cn-chengdu.aliyuncs.com/guoshi_waf/nginx:latest
+    container_name: guoshi_nginx
     tty: true
     ports:
       - 80:80
@@ -14,7 +14,7 @@ services:
       - ./nginx.conf:/opt/nginx/conf/nginx.conf
       - ./acmeout/example.com:/opt/ssl/example.com
     labels:
-      - sh.acme.autoload.domain=guoshi_waf_label
+      - sh.acme.autoload.domain=guoshi_nginx_label
 
   acme.sh:
     image: neilpang/acme.sh
@@ -32,5 +32,5 @@ services:
     environment:
       - Ali_Key=
       - Ali_Secret=
-      - DEPLOY_DOCKER_CONTAINER_LABEL=sh.acme.autoload.domain=guoshi_waf_label
+      - DEPLOY_DOCKER_CONTAINER_LABEL=sh.acme.autoload.domain=guoshi_nginx_label
       - DEPLOY_DOCKER_CONTAINER_RELOAD_CMD="/opt/start.sh"
